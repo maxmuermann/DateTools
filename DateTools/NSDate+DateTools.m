@@ -22,23 +22,6 @@
 
 #import "NSDate+DateTools.h"
 
-typedef NS_ENUM(NSUInteger, DTDateComponent){
-    DTDateComponentEra,
-    DTDateComponentYear,
-    DTDateComponentMonth,
-    DTDateComponentDay,
-    DTDateComponentHour,
-    DTDateComponentMinute,
-    DTDateComponentSecond,
-    DTDateComponentWeekday,
-    DTDateComponentWeekdayOrdinal,
-    DTDateComponentQuarter,
-    DTDateComponentWeekOfMonth,
-    DTDateComponentWeekOfYear,
-    DTDateComponentYearForWeekOfYear,
-    DTDateComponentDayOfYear
-};
-
 static const unsigned int allCalendarUnitFlags = NSCalendarUnitYear | NSCalendarUnitQuarter | NSCalendarUnitMonth | NSCalendarUnitWeekOfYear | NSCalendarUnitWeekOfMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond | NSCalendarUnitEra | NSCalendarUnitWeekday | NSCalendarUnitWeekdayOrdinal | NSCalendarUnitWeekOfYear;
 
 static NSString *defaultCalendarIdentifier = nil;
@@ -87,6 +70,11 @@ static NSCalendar *implicitCalendar = nil;
     return [self timeAgoSinceDate:[NSDate date]];
 }
 
+- (NSString*)timeAgoSinceNowWithPrecision:(NSUInteger)precision {
+    return [self timeAgoSinceDate:[NSDate date] numericDates:NO numericTimes:NO precision:precision];
+}
+
+
 /**
  *  Returns a shortened string with the most convenient unit of time representing
  *  how far in the past that date is from now.
@@ -105,95 +93,200 @@ static NSCalendar *implicitCalendar = nil;
     return [self timeAgoSinceDate:date numericDates:useNumericDates numericTimes:NO];
 }
 
-- (NSString *)timeAgoSinceDate:(NSDate *)date numericDates:(BOOL)useNumericDates numericTimes:(BOOL)useNumericTimes{
+- (NSString *)timeAgoSinceDate:(NSDate *)date numericDates:(BOOL)useNumericDates numericTimes:(BOOL)useNumericTimes {
+    return [self timeAgoSinceDate:date numericDates:useNumericDates numericTimes:useNumericTimes precision:DTDateComponentSecond];
+}
+
+- (NSString *)timeAgoSinceDate:(NSDate *)date numericDates:(BOOL)useNumericDates numericTimes:(BOOL)useNumericTimes precision:(NSUInteger)precision {
 
     NSCalendar *calendar = [NSCalendar currentCalendar];
     NSUInteger unitFlags = NSCalendarUnitMinute | NSCalendarUnitHour | NSCalendarUnitDay | NSCalendarUnitWeekOfYear | NSCalendarUnitMonth | NSCalendarUnitYear | NSCalendarUnitSecond;
-    NSDate *earliest = [self earlierDate:date];
-    NSDate *latest = (earliest == self) ? date : self;
-    NSDateComponents *components = [calendar components:unitFlags fromDate:earliest toDate:latest options:0];
+//    NSDate *earliest = [self earlierDate:date];
+//    NSDate *latest = (earliest == self) ? date : self;
+    NSDateComponents *components = [calendar components:unitFlags fromDate:self toDate:date options:0];
     
     //Not Yet Implemented/Optional
     //The following strings are present in the translation files but lack logic as of 2014.04.05
     //@"Today", @"This week", @"This month", @"This year"
     //and @"This morning", @"This afternoon"
     
-    if (components.year >= 2) {
-        return  [self logicLocalizedStringFromFormat:@"%%d %@years ago" withValue:components.year];
-    }
-    else if (components.year >= 1) {
-     
-        if (useNumericDates) {
-            return DateToolsLocalizedStrings(@"1 year ago");
+    bool past = [self isEarlierThan:date];
+    
+    if (past) {
+        if (components.year >= 2) {
+            return  [self logicLocalizedStringFromFormat:@"%%d %@years ago" withValue:components.year];
         }
-        
-        return DateToolsLocalizedStrings(@"Last year");
-    }
-    else if (components.month >= 2) {
-        return [self logicLocalizedStringFromFormat:@"%%d %@months ago" withValue:components.month];
-    }
-    else if (components.month >= 1) {
-        
-        if (useNumericDates) {
-            return DateToolsLocalizedStrings(@"1 month ago");
+        else if (components.year >= 1) {
+         
+            if (useNumericDates) {
+                return DateToolsLocalizedStrings(@"1 year ago");
+            }
+            
+            return DateToolsLocalizedStrings(@"Last year");
+        } else if ( precision==DTDateComponentYear ) {
+            return @"This year";
         }
-        
-        return DateToolsLocalizedStrings(@"Last month");
-    }
-    else if (components.weekOfYear >= 2) {
-        return [self logicLocalizedStringFromFormat:@"%%d %@weeks ago" withValue:components.weekOfYear];
-    }
-    else if (components.weekOfYear >= 1) {
-        
-        if (useNumericDates) {
-            return DateToolsLocalizedStrings(@"1 week ago");
+        else if (components.month >= 2) {
+            return [self logicLocalizedStringFromFormat:@"%%d %@months ago" withValue:components.month];
         }
-        
-        return DateToolsLocalizedStrings(@"Last week");
-    }
-    else if (components.day >= 2) {
-        return [self logicLocalizedStringFromFormat:@"%%d %@days ago" withValue:components.day];
-    }
-    else if (components.day >= 1) {
-        
-        if (useNumericDates) {
-            return DateToolsLocalizedStrings(@"1 day ago");
+        else if (components.month >= 1) {
+            
+            if (useNumericDates) {
+                return DateToolsLocalizedStrings(@"1 month ago");
+            }
+            
+            return DateToolsLocalizedStrings(@"Last month");
+        } else if ( precision==DTDateComponentMonth ) {
+            return @"This month";
         }
-        
-        return DateToolsLocalizedStrings(@"Yesterday");
-    }
-    else if (components.hour >= 2) {
-        return [self logicLocalizedStringFromFormat:@"%%d %@hours ago" withValue:components.hour];
-    }
-    else if (components.hour >= 1) {
-        
-        if (useNumericTimes) {
-            return DateToolsLocalizedStrings(@"1 hour ago");
+        else if (components.weekOfYear >= 2) {
+            return [self logicLocalizedStringFromFormat:@"%%d %@weeks ago" withValue:components.weekOfYear];
         }
-        
-        return DateToolsLocalizedStrings(@"An hour ago");
-    }
-    else if (components.minute >= 2) {
-        return [self logicLocalizedStringFromFormat:@"%%d %@minutes ago" withValue:components.minute];
-    }
-    else if (components.minute >= 1) {
-        
-        if (useNumericTimes) {
-            return DateToolsLocalizedStrings(@"1 minute ago");
+        else if (components.weekOfYear >= 1 ) {
+            
+            if (useNumericDates) {
+                return DateToolsLocalizedStrings(@"1 week ago");
+            }
+            
+            return DateToolsLocalizedStrings(@"Last week");
+        } else if ( precision==DTDateComponentWeekOfYear ) {
+            return @"This week";
         }
-        
-        return DateToolsLocalizedStrings(@"A minute ago");
-    }
-    else if (components.second >= 3) {
-        return [self logicLocalizedStringFromFormat:@"%%d %@seconds ago" withValue:components.second];
-    }
-    else {
-        
-        if (useNumericTimes) {
-            return DateToolsLocalizedStrings(@"1 second ago");
+        else if (components.day >= 2) {
+            return [self logicLocalizedStringFromFormat:@"%%d %@days ago" withValue:components.day];
         }
+        else if (components.day >= 1) {
+            
+            if (useNumericDates) {
+                return DateToolsLocalizedStrings(@"1 day ago");
+            }
+            
+            return DateToolsLocalizedStrings(@"Yesterday");
+        } else if ( precision==DTDateComponentDay ) {
+            return @"Today";
+        }
+        else if (components.hour >= 2) {
+            return [self logicLocalizedStringFromFormat:@"%%d %@hours ago" withValue:components.hour];
+        }
+        else if (components.hour >= 1) {
+            
+            if (useNumericTimes) {
+                return DateToolsLocalizedStrings(@"1 hour ago");
+            }
+            
+            return DateToolsLocalizedStrings(@"An hour ago");
+        } else if ( precision==DTDateComponentYear ) {
+            return @"Less than an hour ago";
+        }
+        else if (components.minute >= 2) {
+            return [self logicLocalizedStringFromFormat:@"%%d %@minutes ago" withValue:components.minute];
+        }
+        else if (components.minute >= 1) {
+            
+            if (useNumericTimes) {
+                return DateToolsLocalizedStrings(@"1 minute ago");
+            }
+            
+            return DateToolsLocalizedStrings(@"A minute ago");
+        } else if ( precision==DTDateComponentYear ) {
+            return @"Less than a minute ago";
+        }
+        else if (components.second >= 3) {
+            return [self logicLocalizedStringFromFormat:@"%%d %@seconds ago" withValue:components.second];
+        }
+        else {
+            
+            if (useNumericTimes) {
+                return DateToolsLocalizedStrings(@"1 second ago");
+            }
+            
+            return DateToolsLocalizedStrings(@"Just now");
+        }
+    } else {
         
-        return DateToolsLocalizedStrings(@"Just now");
+        if (components.year <= -2) { // FUTURE DATES FROM HERE ON
+            return  [self logicLocalizedStringFromFormat:@"In %%d %@years" withValue:-components.year];
+        }
+        else if (components.year <= -1) {
+            
+            if (useNumericDates) {
+                return DateToolsLocalizedStrings(@"In 1 year");
+            }
+            
+            return DateToolsLocalizedStrings(@"Next year");
+        } else if ( precision==DTDateComponentYear ) {
+            return @"This year";
+        }
+        else if (components.month <= -2) {
+            return [self logicLocalizedStringFromFormat:@"In %%d %@months" withValue:-components.month];
+        }
+        else if (components.month <= -1) {
+            
+            if (useNumericDates) {
+                return DateToolsLocalizedStrings(@"In 1 month");
+            }
+            
+            return DateToolsLocalizedStrings(@"Next month");
+        } else if ( precision==DTDateComponentMonth ) {
+            return @"This month";
+        }
+        else if (components.weekOfYear <= -2) {
+            return [self logicLocalizedStringFromFormat:@"In %%d %@weeks" withValue:-components.weekOfYear];
+        }
+        else if (components.weekOfYear <= -1) {
+            
+            if (useNumericDates) {
+                return DateToolsLocalizedStrings(@"In 1 week");
+            }
+            
+            return DateToolsLocalizedStrings(@"Next week");
+        } else if ( precision==DTDateComponentWeekOfYear ) {
+            return @"This week";
+        }
+        else if (components.day <= -2) {
+            return [self logicLocalizedStringFromFormat:@"In %%d %@days" withValue:-components.day];
+        }
+        else if (components.day <= -1) {
+            
+            if (useNumericDates) {
+                return DateToolsLocalizedStrings(@"In 1 day");
+            }
+            
+            return DateToolsLocalizedStrings(@"Tomorrow");
+        } else if ( precision==DTDateComponentDay ) {
+            return @"Today";
+        }
+        else if (components.hour <= -2) {
+            return [self logicLocalizedStringFromFormat:@"In %%d %@hours" withValue:-components.hour];
+        }
+        else if (components.hour <= -1) {
+            
+            if (useNumericTimes) {
+                return DateToolsLocalizedStrings(@"In 1 hour");
+            }
+            
+            return DateToolsLocalizedStrings(@"In an hour");
+        } else if ( precision==DTDateComponentHour ) {
+            return @"In less than an hour";
+        }
+        else if (components.minute <= -2) {
+            return [self logicLocalizedStringFromFormat:@"In %%d %@minutes" withValue:-components.minute];
+        }
+        else if (components.minute <= -1) {
+            
+            if (useNumericTimes) {
+                return DateToolsLocalizedStrings(@"In 1 minute");
+            }
+            
+            return DateToolsLocalizedStrings(@"In a minute");
+        } else if ( precision==DTDateComponentMinute ) {
+            return @"In less than a minute";
+        }
+        else if (components.second >= 3) {
+            return [self logicLocalizedStringFromFormat:@"In %%d %@seconds" withValue:-components.second];
+        } else {
+            return @"Just now";
+        }
     }
     
 }

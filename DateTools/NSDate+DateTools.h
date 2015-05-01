@@ -30,10 +30,28 @@ NSLocalizedStringFromTableInBundle(key, @"DateTools", [NSBundle bundleWithPath:[
 
 @interface NSDate (DateTools)
 
+typedef NS_ENUM(NSUInteger, DTDateComponent){
+    DTDateComponentEra,
+    DTDateComponentYear,
+    DTDateComponentMonth,
+    DTDateComponentDay,
+    DTDateComponentHour,
+    DTDateComponentMinute,
+    DTDateComponentSecond,
+    DTDateComponentWeekday,
+    DTDateComponentWeekdayOrdinal,
+    DTDateComponentQuarter,
+    DTDateComponentWeekOfMonth,
+    DTDateComponentWeekOfYear,
+    DTDateComponentYearForWeekOfYear,
+    DTDateComponentDayOfYear
+};
+
 #pragma mark - Time Ago
 + (NSString*)timeAgoSinceDate:(NSDate*)date;
 + (NSString*)shortTimeAgoSinceDate:(NSDate*)date;
 - (NSString*)timeAgoSinceNow;
+- (NSString*)timeAgoSinceNowWithPrecision:(NSUInteger)precision;
 - (NSString *)shortTimeAgoSinceNow;
 - (NSString *)timeAgoSinceDate:(NSDate *)date;
 - (NSString *)timeAgoSinceDate:(NSDate *)date numericDates:(BOOL)useNumericDates;
