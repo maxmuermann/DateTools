@@ -155,7 +155,7 @@ static NSCalendar *implicitCalendar = nil;
         else if (components.day >= 2) {
             return [self logicLocalizedStringFromFormat:@"%%d %@days ago" withValue:components.day];
         }
-        else if (components.day >= 1) {
+        else if (components.day >= 1 || [self isYesterday]) {
             
             if (useNumericDates) {
                 return DateToolsLocalizedStrings(@"1 day ago");
@@ -246,7 +246,7 @@ static NSCalendar *implicitCalendar = nil;
         else if (components.day <= -2) {
             return [self logicLocalizedStringFromFormat:@"In %%d %@days" withValue:-components.day];
         }
-        else if (components.day <= -1) {
+        else if (components.day <= -1 || [self isTomorrow]) {
             
             if (useNumericDates) {
                 return DateToolsLocalizedStrings(@"In 1 day");
