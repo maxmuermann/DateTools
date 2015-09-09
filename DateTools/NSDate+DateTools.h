@@ -51,6 +51,7 @@ typedef NS_ENUM(NSUInteger, DTDateComponent){
 + (NSString*)timeAgoSinceDate:(NSDate*)date;
 + (NSString*)shortTimeAgoSinceDate:(NSDate*)date;
 - (NSString*)timeAgoSinceNow;
+- (NSString*)dateAgoSinceNow;
 - (NSString*)timeAgoSinceNowWithPrecision:(NSUInteger)precision;
 - (NSString *)shortTimeAgoSinceNow;
 - (NSString *)timeAgoSinceDate:(NSDate *)date;
