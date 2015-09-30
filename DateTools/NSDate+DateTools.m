@@ -153,7 +153,7 @@ static NSCalendar *implicitCalendar = nil;
         else if (components.weekOfYear >= 2) {
             return [self logicLocalizedStringFromFormat:@"%%d %@weeks ago" withValue:components.weekOfYear];
         }
-        else if (components.weekOfYear >= 1 ) {
+        else if (components.weekOfYear == 1 ) {
             
             if (useNumericDates) {
                 return DateToolsLocalizedStrings(@"1 week ago");
@@ -244,7 +244,7 @@ static NSCalendar *implicitCalendar = nil;
         else if (components.weekOfYear <= -2) {
             return [self logicLocalizedStringFromFormat:@"In %%d %@weeks" withValue:-components.weekOfYear];
         }
-        else if (components.weekOfYear <= -1) {
+        else if (components.weekOfYear == -1) {
             
             if (useNumericDates) {
                 return DateToolsLocalizedStrings(@"In 1 week");
