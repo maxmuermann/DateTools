@@ -579,6 +579,16 @@ static NSCalendar *implicitCalendar = nil;
     return [tomorrow isEqualToDate:otherDate];
 }
 
+-(BOOL)isLastMonth{
+    NSCalendar *cal = [NSCalendar currentCalendar];
+    NSDateComponents *components = [cal components:(NSCalendarUnitEra|NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:[[NSDate date] dateBySubtractingMonths:1]];
+    NSDate *nextMonth = [cal dateFromComponents:components];
+    components = [cal components:(NSCalendarUnitEra|NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:self];
+    NSDate *otherDate = [cal dateFromComponents:components];
+
+    return [nextMonth isEqualToDate:otherDate];
+}
+
 - (BOOL)isWeekend {
     NSCalendar *calendar            = [NSCalendar currentCalendar];
     NSRange weekdayRange            = [calendar maximumRangeOfUnit:NSCalendarUnitWeekday];

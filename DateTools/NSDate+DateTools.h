@@ -80,7 +80,8 @@ typedef NS_ENUM(NSUInteger, DTDateComponent){
 -(BOOL)isInLeapYear;
 - (BOOL)isToday;
 - (BOOL)isTomorrow;
--(BOOL)isYesterday;
+- (BOOL)isYesterday;
+- (BOOL)isLastMonth;
 - (BOOL)isWeekend;
 
 #pragma mark - Date Components With Calendar
